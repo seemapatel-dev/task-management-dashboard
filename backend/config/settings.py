@@ -162,9 +162,9 @@ MAILERS = {
 
 CORS_ALLOW_ALL_ORIGINS = True
 
-CORS_ALLOWED_ORIGIN_REGEXES = [
-    r"^https://task-management-dashboard-frontend.*\.vercel\.app$",
-]
+# CORS_ALLOWED_ORIGIN_REGEXES = [
+#     r"^https://task-management-dashboard-frontend.*\.vercel\.app$",
+# ]
 
 CORS_ALLOW_CREDENTIALS = True  # only needed if you send cookies/auth headers with credentials: 'include'
 
