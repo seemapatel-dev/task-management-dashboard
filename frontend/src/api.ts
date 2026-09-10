@@ -1,6 +1,7 @@
 const API_BASE_URL =
-  'https://backend-qcjpaubx9-seemas-projects-7a506421.vercel.app/api'
+  'https://backend-seven-lyart-37.vercel.app/api'
 
+  
 export type User = {
   id: string
   name: string
