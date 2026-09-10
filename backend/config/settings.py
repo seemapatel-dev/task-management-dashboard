@@ -158,12 +158,14 @@ MAILERS = {
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
-    "https://task-management-dashboard-frontend-eight.vercel.app",
+    # "https://task-management-dashboard-frontend-eight.vercel.app",
+    "https://task-management-dashboard-frontend-qvo4d1coz.vercel.app",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
-    "https://task-management-dashboard-frontend-eight.vercel.app",
+    # "https://task-management-dashboard-frontend-eight.vercel.app",
+    "https://task-management-dashboard-frontend-qvo4d1coz.vercel.app",
 ]
 
 
