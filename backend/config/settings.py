@@ -158,8 +158,13 @@ MAILERS = {
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
+    "https://task-management-dashboard-frontend-eight.vercel.app",
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+    "https://task-management-dashboard-frontend-eight.vercel.app",
+]
 
 
 # # Configure Django REST Framework
