@@ -1,0 +1,5 @@
+<script setup lang="ts">
+defineProps<{search:string,status:string,priority:string}>()
+const emit=defineEmits(['update:search','update:status','update:priority'])
+</script>
+<template><div class="filters"><div class="search-box"><span>⌕</span><input :value="search" @input="emit('update:search',($event.target as HTMLInputElement).value)" placeholder="Search tasks..." /></div><select :value="status" @change="emit('update:status',($event.target as HTMLSelectElement).value)"><option value="all">All Status</option><option value="active">Active</option><option value="completed">Completed</option></select><select :value="priority" @change="emit('update:priority',($event.target as HTMLSelectElement).value)"><option value="all">All Priority</option><option value="high">High Priority</option><option value="medium">Medium Priority</option><option value="low">Low Priority</option></select><button v-if="search||status!=='all'||priority!=='all'" class="clear-btn" @click="emit('update:search','');emit('update:status','all');emit('update:priority','all')">Clear</button></div></template>
