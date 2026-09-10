@@ -3,7 +3,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 
 from .auth_views import LoginView
 
-from .views import RegisterView, MeView, TaskListCreateView, TaskDetailView
+from .views import RegisterView, MeView, TaskListCreateView, TaskDetailView, debug_cors
 
 
 urlpatterns = [
@@ -40,5 +40,10 @@ urlpatterns = [
         "tasks/<int:pk>/",
         TaskDetailView.as_view(),
         name="task-detail",
+    ),
+    path(
+        'debug-cors/',
+        debug_cors,
+        name='debug-cors',
     ),
 ]

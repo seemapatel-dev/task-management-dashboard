@@ -49,19 +49,18 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
     'rest_framework',
     'corsheaders',
-    
     'tasks',
 ]
 
 MIDDLEWARE = [
     
-    'django.middleware.security.SecurityMiddleware',
+
     'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
+    'django.middleware.common.CommonMiddleware',    
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -156,17 +155,22 @@ MAILERS = {
 }
 
 
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
-    # "https://task-management-dashboard-frontend-eight.vercel.app",
-    "https://task-management-dashboard-frontend-qvo4d1coz.vercel.app",
 ]
+
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https://task-management-dashboard-frontend.*\.vercel\.app$",
+]
+
+CORS_ALLOW_CREDENTIALS = True  # only needed if you send cookies/auth headers with credentials: 'include'
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
-    # "https://task-management-dashboard-frontend-eight.vercel.app",
     "https://task-management-dashboard-frontend-qvo4d1coz.vercel.app",
 ]
+
 
 
 # # Configure Django REST Framework

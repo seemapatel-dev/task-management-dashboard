@@ -7,6 +7,12 @@ from .models import User, Task
 from .serializers import RegisterSerializer, UserSerializer, TaskSerializer
 
 
+from django.http import JsonResponse
+from django.conf import settings
+
+
+
+
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
@@ -68,3 +74,15 @@ class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):
         return Task.objects.filter(
             user=self.request.user
         )
+
+
+# Debug
+
+
+def debug_cors(request):
+    return JsonResponse({
+        "CORS_ALLOWED_ORIGINS": getattr(settings, "CORS_ALLOWED_ORIGINS", None),
+        "INSTALLED_APPS_has_corsheaders": "corsheaders" in settings.INSTALLED_APPS,
+        "MIDDLEWARE": settings.MIDDLEWARE,
+        "SETTINGS_MODULE": settings.SETTINGS_MODULE,
+    })
