@@ -1,4 +1,28 @@
-    const API_BASE_URL = 'http://127.0.0.1:8000/api'
+const API_BASE_URL =
+  'https://backend-qcjpaubx9-seemas-projects-7a506421.vercel.app/api'
+
+export type User = {
+  id: string
+  name: string
+  email: string
+  role: string
+}
+
+export type Task = {
+  id: number
+  title: string
+  description: string
+  project: string
+  priority: 'high' | 'medium' | 'low'
+  status: 'active' | 'completed'
+  due: string
+}
+
+export type AuthResponse = {
+  access: string
+  refresh: string
+  user: User
+}
 
 type RequestOptions = RequestInit & {
   auth?: boolean
@@ -22,40 +46,35 @@ async function apiRequest<T>(
       ...fetchOptions,
       headers: {
         'Content-Type': 'application/json',
-
         ...(auth && token
           ? {
               Authorization: `Bearer ${token}`,
             }
           : {}),
-
         ...headers,
       },
     }
   )
 
-  const data = await response.json().catch(
-    () => null
-  )
+  const data = await response.json().catch(() => null)
 
   if (!response.ok) {
     throw new Error(
       data?.detail ||
-      data?.message ||
-      'Something went wrong.'
+        data?.message ||
+        'Something went wrong.'
     )
   }
 
-  return data
+  return data as T
 }
-
 
 export function register(
   name: string,
   email: string,
   password: string
-) {
-  return apiRequest('/auth/register/', {
+): Promise<AuthResponse> {
+  return apiRequest<AuthResponse>('/auth/register/', {
     method: 'POST',
     body: JSON.stringify({
       name,
@@ -65,12 +84,11 @@ export function register(
   })
 }
 
-
 export function login(
   email: string,
   password: string
-) {
-  return apiRequest('/auth/login/', {
+): Promise<AuthResponse> {
+  return apiRequest<AuthResponse>('/auth/login/', {
     method: 'POST',
     body: JSON.stringify({
       email,
@@ -79,31 +97,24 @@ export function login(
   })
 }
 
-
-export function getCurrentUser() {
-  return apiRequest('/auth/me/', {
+export function getCurrentUser(): Promise<User> {
+  return apiRequest<User>('/auth/me/', {
     method: 'GET',
     auth: true,
   })
 }
 
-
-export function getTasks() {
-  return apiRequest('/tasks/', {
+export function getTasks(): Promise<Task[]> {
+  return apiRequest<Task[]>('/tasks/', {
     method: 'GET',
     auth: true,
   })
 }
 
-export function createTask(task: {
-  title: string
-  description: string
-  project: string
-  priority: 'high' | 'medium' | 'low'
-  status: 'active' | 'completed'
-  due: string
-}) {
-  return apiRequest('/tasks/', {
+export function createTask(
+  task: Omit<Task, 'id'>
+): Promise<Task> {
+  return apiRequest<Task>('/tasks/', {
     method: 'POST',
     auth: true,
     body: JSON.stringify(task),
@@ -112,24 +123,19 @@ export function createTask(task: {
 
 export function updateTask(
   id: number,
-  task: {
-    title: string
-    description: string
-    project: string
-    priority: 'high' | 'medium' | 'low'
-    status: 'active' | 'completed'
-    due: string
-  }
-) {
-  return apiRequest(`/tasks/${id}/`, {
+  task: Omit<Task, 'id'>
+): Promise<Task> {
+  return apiRequest<Task>(`/tasks/${id}/`, {
     method: 'PUT',
     auth: true,
     body: JSON.stringify(task),
   })
 }
 
-export function deleteTask(id: number) {
-  return apiRequest(`/tasks/${id}/`, {
+export function deleteTask(
+  id: number
+): Promise<void> {
+  return apiRequest<void>(`/tasks/${id}/`, {
     method: 'DELETE',
     auth: true,
   })

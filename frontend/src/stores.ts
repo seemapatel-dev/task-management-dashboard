@@ -1,4 +1,5 @@
 import { computed, reactive, ref } from 'vue'
+
 import {
   register as apiRegister,
   login as apiLogin,
@@ -9,22 +10,30 @@ import {
   deleteTask as apiDeleteTask
 } from './api'
 
-export type User = {
-  id: string
-  name: string
-  email: string
-  role: string
-}
+import type {
+  User,
+  Task
+} from './api'
 
-export type Task = {
-  id: number
-  title: string
-  description: string
-  project: string
-  priority: 'high' | 'medium' | 'low'
-  status: 'active' | 'completed'
-  due: string
-}
+
+export type { User, Task } from './api'
+
+// export type User = {
+//   id: string
+//   name: string
+//   email: string
+//   role: string
+// }
+
+// export type Task = {
+//   id: number
+//   title: string
+//   description: string
+//   project: string
+//   priority: 'high' | 'medium' | 'low'
+//   status: 'active' | 'completed'
+//   due: string
+// }
 
 export type Project = {
   id: number

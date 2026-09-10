@@ -40,3 +40,40 @@ Thumbs.db
 
 # Logs
 *.log
+
+
+__________________________
+
+
+
+The important part of that solution is this:
+
+Vercel
+   ↓
+@vercel/python
+   ↓
+config/wsgi.py
+   ↓
+Django application
+   ↓
+/api/auth/me/
+
+Your current deployment is effectively doing:
+
+Vercel
+   ↓
+files/folders
+   ↓
+404
+
+
+
+
+
+
+
+
+
+
+
+
