@@ -1,76 +1,65 @@
 # Task Management Dashboard
 
-A full-stack task management application with a Vue 3 frontend and Django REST Framework backend. Users can register, sign in, manage tasks, organize work into projects, and view a dashboard.
+A full-stack task management application built with Vue 3, TypeScript, Django, and Django REST Framework. Users can create an account, manage personal tasks, organize work into projects, and customize workspace preferences.
 
 ## Features
 
-- User registration and email/password login
-- JWT-based authentication
-- Personal task list with create, view, update, and delete operations
-- Task status, priority, project name, description, and due date
-- Dashboard summary of task status and priority
-- Project organization and workspace preferences in the frontend
-- Responsive single-page application using Vue Router
+- Email-based registration and JWT authentication
+- Personal task creation, editing, completion, and deletion
+- Task priority, status, project label, and due date
+- Dashboard and calendar views
+- Project organization
+- Per-user workspace preferences
+- Responsive Vue single-page application
 
-> **Current implementation note:** Tasks are stored through the authenticated backend API. Projects and workspace settings are currently stored in browser local storage, so they do not sync between browsers or devices.
+**Data persistence:** Tasks are stored in the Django backend. Projects and preferences currently use browser local storage, so they remain on that browser and do not synchronize across devices. This is a known limitation.
 
-## Technology stack
+## Technology
 
-**Frontend**
-- Vue 3
-- TypeScript
-- Vue Router
-- Vite
+| Layer | Stack |
+|---|---|
+| Frontend | Vue 3, TypeScript, Vue Router, Vite |
+| Backend | Python, Django, Django REST Framework |
+| Authentication | Simple JWT |
+| Database | PostgreSQL in deployment; SQLite can be used for local development |
+| Hosting configuration | Vercel |
 
-**Backend**
-- Python
-- Django
-- Django REST Framework
-- Simple JWT
-- PostgreSQL support via `dj-database-url` and `psycopg2-binary`
-
-## Repository structure
+## Repository layout
 
 ```text
 .
+├── .github/workflows/ci.yml
 ├── backend/
-│   ├── config/       # Django project configuration
-│   ├── tasks/        # User and task models, serializers, API views
+│   ├── config/
+│   ├── tasks/
 │   ├── requirements.txt
 │   └── vercel.json
 └── frontend/
     ├── src/
-    │   ├── components/
-    │   ├── router/
-    │   ├── views/
-    │   ├── api.ts
-    │   └── stores.ts
     ├── package.json
     └── vercel.json
 ```
 
 ## Run locally
 
-### Requirements
+### Prerequisites
 
-- Python 3.11 or a compatible version supported by the pinned Django release
-- Node.js and npm
-- A PostgreSQL database, or another database configured for Django
+- Python 3.12 (or a version supported by the pinned Django release)
+- Node.js 22 and npm
+- A database; SQLite is suitable for local development
 
-### 1. Backend
-
-Open a terminal:
+### Backend
 
 ```bash
 cd backend
 python -m venv .venv
 ```
 
-Activate the virtual environment:
+Activate the environment:
 
 **Windows PowerShell**
 ```powershell
-.venv\\Scripts\\Activate.ps1
+.venv\Scripts\Activate.ps1
 ```
 
 **macOS/Linux**
@@ -81,78 +70,124 @@ source .venv/bin/activate
 Install dependencies:
 
 ```bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
-Create a `.env` file in the backend directory and configure the database connection:
+Create `.env` inside `backend/` with a development secret and database URL:
 
 ```env
-DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/DATABASE_NAME
+DJANGO_DEBUG=True
+DJANGO_SECRET_KEY=replace-with-a-new-local-development-secret
+DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
+FRONTEND_ORIGINS=http://localhost:5173
+CSRF_TRUSTED_ORIGINS=http://localhost:5173
+DATABASE_URL=sqlite:///db.sqlite3
 ```
 
-Then run database migrations and start the development server:
+Generate a secret for local use with:
+
+```bash
+python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+```
+
+Run migrations and start Django:
 
 ```bash
 python manage.py migrate
 python manage.py runserver
 ```
 
-The backend will normally be available at `http://127.0.0.1:8000`.
+The API is available at `http://127.0.0.1:8000/api/`.
 
-### 2. Frontend
+### Frontend
 
-In a second terminal:
+In a separate terminal:
 
 ```bash
 cd frontend
-npm install
+npm ci
 npm run dev
 ```
 
-Vite prints the local frontend URL in the terminal (normally `http://localhost:5173`).
+Vite normally serves the app at `http://localhost:5173`.
 
-The frontend API base URL is currently configured in `frontend/src/api.ts`. For local development, make sure it points to your local backend API at `http://127.0.0.1:8000/api`.
+The frontend reads its API root from `VITE_API_BASE_URL`. Set it in `frontend/.env.local` for local development:
 
-## API endpoints
+```env
+VITE_API_BASE_URL=http://127.0.0.1:8000/api
+```
 
-The backend routes are defined under `/api/`.
+If it is not set, the current deployed backend URL is used as the fallback.
 
-| Method | Endpoint | Purpose | Authentication |
+## API overview
+
+All endpoints are under `/api/`.
+
+| Method | Endpoint | Purpose | Auth |
 |---|---|---|---|
-| POST | `/api/auth/register/` | Register a user | No |
-| POST | `/api/auth/login/` | Obtain JWT tokens | No |
-| POST | `/api/auth/token/refresh/` | Refresh an access token | Refresh token |
-| GET | `/api/auth/me/` | Get the signed-in user | Yes |
-| GET | `/api/tasks/` | List the signed-in user's tasks | Yes |
-| POST | `/api/tasks/` | Create a task | Yes |
-| GET | `/api/tasks/<id>/` | Retrieve a task | Yes |
-| PUT/PATCH | `/api/tasks/<id>/` | Update a task | Yes |
-| DELETE | `/api/tasks/<id>/` | Delete a task | Yes |
+| POST | `auth/register/` | Create an account | No |
+| POST | `auth/login/` | Obtain JWT tokens | No |
+| POST | `auth/token/refresh/` | Refresh an access token | Refresh token |
+| GET | `auth/me/` | Current user profile | Yes |
+| GET, POST | `tasks/` | List or create the signed-in user's tasks | Yes |
+| GET, PUT, PATCH, DELETE | `tasks/<id>/` | Read or modify one of the signed-in user's tasks | Yes |
 
-Authenticated requests use the header:
+Send authenticated requests with:
 
 ```http
 Authorization: Bearer <access_token>
 ```
 
-## Production and security checklist
+## Deployment configuration
 
-Before deploying or using this application with real user data:
+Configure these variables in the backend hosting environment. Do not commit real secrets.
 
-- Read the Django deployment checklist and set `DEBUG=False`.
-- Load `SECRET_KEY` from a secure environment variable. Rotate the key currently present in the repository configuration because it has been committed to source control.
-- Restrict `ALLOWED_HOSTS` to the backend's actual hostnames.
-- Replace permissive CORS settings with the exact frontend origin(s).
-- Keep database credentials and all other secrets out of source control.
-- Remove the temporary `/api/debug-cors/` endpoint.
-- Configure HTTPS and review cookie, CSRF, and JWT settings.
-- Add automated tests for registration, authentication, task ownership, and task CRUD.
-- Back up the production database and verify the restore process.
+| Variable | Purpose |
+|---|---|
+| `DJANGO_SECRET_KEY` | Newly generated private Django secret |
+| `DJANGO_DEBUG` | Set to `False` in production |
+| `DJANGO_ALLOWED_HOSTS` | Comma-separated exact backend hostnames, without scheme |
+| `FRONTEND_ORIGINS` | Comma-separated exact frontend origins, including `https://` |
+| `CSRF_TRUSTED_ORIGINS` | Comma-separated trusted origins, including `https://` |
+| `DATABASE_URL` | Production database connection string |
 
-## Development
+For the frontend deployment, set `VITE_API_BASE_URL` to the deployed backend API root, ending in `/api`.
 
-Issues and pull requests are welcome. Please include reproduction steps for bug reports and tests for behavior changes.
+The previously committed Django secret must be considered exposed. Generate a replacement and update the hosting environment before deploying the security changes. If the old commented database password was ever real or reused, rotate it too.
+
+## Quality checks
+
+The GitHub Actions workflow runs:
+
+- Django system checks and backend API tests
+- Frontend dependency installation, TypeScript checking, and production build
+
+Run the same checks locally:
+
+```bash
+cd backend
+python manage.py check
+python manage.py test
+```
+
+```bash
+cd frontend
+npm ci
+npm run build
+```
+
+## Known limitations and roadmap
+
+- Projects and preferences are browser-local; backend persistence and multi-device sync are future work.
+- Add profile editing and complete account-management flows.
+- Expand tests for validation, task updates/deletion, and session expiration.
+- Add a project license before inviting reuse or redistribution.
+- Add screenshots and a hosted demo link after verifying the public deployment.
+
+## Contributing
+
+Bug reports and pull requests are welcome. Please include steps to reproduce bugs and tests for behavior changes. Keep credentials, access tokens, and personal data out of issues and commits.
 
 ## License
 
-No license has been added yet. Until a license is selected, the repository's code should not be assumed to be available for reuse or redistribution.
+No license has been selected yet. Until a license is added, others do not automatically have permission to reuse, modify, or redistribute this code.
