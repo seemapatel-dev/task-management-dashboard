@@ -215,10 +215,10 @@ export async function loginWithCredentials(
 
 export function logoutUser() {
   currentUser.value = null
-
   localStorage.removeItem('access_token')
   localStorage.removeItem('refresh_token')
   localStorage.removeItem('taskflow.currentUser')
+  loadUserData()
 }
 
 export async function restoreSession() {
@@ -248,7 +248,7 @@ export async function restoreSession() {
   }
 }
 
-function initializeUserData(userId: string) {
+function initializeUserData(userId: string | number) {
   const projectKey = `taskflow.projects.${userId}`
   const settingsKey = `taskflow.settings.${userId}`
 
@@ -279,6 +279,16 @@ export const projects = ref<Project[]>([])
 export const settings = reactive({
   ...defaultSettings
 })
+
+export function saveUserSettings() {
+  if (!currentUser.value) return
+  localStorage.setItem(getUserSettingsKey(), JSON.stringify(settings))
+}
+
+function saveProjects() {
+  if (!currentUser.value) return
+  localStorage.setItem(getUserProjectsKey(), JSON.stringify(projects.value))
+}
 
 export function loadUserData() {
   if (!currentUser.value) {
@@ -463,6 +473,7 @@ export function addProject(
     ...project,
     id: Date.now()
   })
+  saveProjects()
 }
 
 export function updateProject(project: Project) {
@@ -472,6 +483,7 @@ export function updateProject(project: Project) {
 
   if (i !== -1) {
     projects.value[i] = { ...project }
+    saveProjects()
   }
 }
 
@@ -479,4 +491,5 @@ export function deleteProject(id: number) {
   projects.value = projects.value.filter(
     p => p.id !== id
   )
+  saveProjects()
 }
