@@ -29,6 +29,7 @@ jobs:
         working-directory: backend
         env:
           DATABASE_URL: sqlite:////tmp/task-dashboard-ci.sqlite3
+          DJANGO_DEBUG: "True"
         run: |
           python manage.py check
           python manage.py test
