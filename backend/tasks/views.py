@@ -7,26 +7,15 @@ from .models import User, Task
 from .serializers import RegisterSerializer, UserSerializer, TaskSerializer
 
 
-from django.http import JsonResponse
-from django.conf import settings
-
-
-
-
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
     permission_classes = [permissions.AllowAny]
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(
-            data=request.data
-        )
-
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
         user = serializer.save()
-
         refresh = RefreshToken.for_user(user)
 
         return Response({
@@ -37,21 +26,15 @@ class RegisterView(generics.CreateAPIView):
 
 
 class MeView(APIView):
-    permission_classes = [
-        permissions.IsAuthenticated
-    ]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        return Response(
-            UserSerializer(request.user).data
-        )
-    
+        return Response(UserSerializer(request.user).data)
+
 
 class TaskListCreateView(generics.ListCreateAPIView):
     serializer_class = TaskSerializer
-    permission_classes = [
-        permissions.IsAuthenticated
-    ]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         return Task.objects.filter(
@@ -59,30 +42,12 @@ class TaskListCreateView(generics.ListCreateAPIView):
         ).order_by("-created_at")
 
     def perform_create(self, serializer):
-        serializer.save(
-            user=self.request.user
-        )
+        serializer.save(user=self.request.user)
 
 
 class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = TaskSerializer
-    permission_classes = [
-        permissions.IsAuthenticated
-    ]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Task.objects.filter(
-            user=self.request.user
-        )
-
-
-# Debug
-
-
-def debug_cors(request):
-    return JsonResponse({
-        "CORS_ALLOWED_ORIGINS": getattr(settings, "CORS_ALLOWED_ORIGINS", None),
-        "INSTALLED_APPS_has_corsheaders": "corsheaders" in settings.INSTALLED_APPS,
-        "MIDDLEWARE": settings.MIDDLEWARE,
-        "SETTINGS_MODULE": settings.SETTINGS_MODULE,
-    })
+        return Task.objects.filter(user=self.request.user)
