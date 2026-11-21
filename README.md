@@ -53,7 +53,7 @@ A full-stack task management application with a Vue 3 frontend and Django REST F
 
 ### Requirements
 
-- Python 3.11 or a compatible version supported by the pinned Django release
+- Python and pip (use a version supported by the pinned Django release)
 - Node.js and npm
 - A PostgreSQL database, or another database configured for Django
 
@@ -70,7 +70,7 @@ Activate the virtual environment:
 
 **Windows PowerShell**
 ```powershell
-.venv\\Scripts\\Activate.ps1
+.venv\Scripts\Activate.ps1
 ```
 
 **macOS/Linux**
@@ -84,9 +84,20 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
-Create a `.env` file in the backend directory and configure the database connection:
+Create a `.env` file in the backend directory. Generate a new development secret key with:
+
+```bash
+python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+```
+
+Add the generated value and your database connection to `.env`:
 
 ```env
+DJANGO_DEBUG=True
+DJANGO_SECRET_KEY=paste-the-generated-key-here
+DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
+FRONTEND_ORIGINS=http://localhost:5173
+CSRF_TRUSTED_ORIGINS=http://localhost:5173
 DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/DATABASE_NAME
 ```
 
@@ -135,19 +146,26 @@ Authenticated requests use the header:
 Authorization: Bearer <access_token>
 ```
 
-## Production and security checklist
+## Deployment environment variables
 
-Before deploying or using this application with real user data:
+Configure these variables in the backend deployment environment before deploying:
 
-- Read the Django deployment checklist and set `DEBUG=False`.
-- Load `SECRET_KEY` from a secure environment variable. Rotate the key currently present in the repository configuration because it has been committed to source control.
-- Restrict `ALLOWED_HOSTS` to the backend's actual hostnames.
-- Replace permissive CORS settings with the exact frontend origin(s).
+- `DJANGO_SECRET_KEY`: a newly generated, private secret key. Do not reuse the key that was previously committed.
+- `DJANGO_DEBUG=False`
+- `DJANGO_ALLOWED_HOSTS`: comma-separated exact backend hostnames (without `https://`).
+- `FRONTEND_ORIGINS`: comma-separated exact frontend origins, including `https://`.
+- `CSRF_TRUSTED_ORIGINS`: comma-separated trusted origins, including `https://`.
+- `DATABASE_URL`: the production database connection string.
+
+The application intentionally fails to start in production if `DJANGO_SECRET_KEY` is missing. This is safer than silently using a known fallback key. Make sure all required variables are configured in the hosting provider before deploying.
+
+## Security notes
+
+- The previous Django secret key was committed to source control. Treat it as exposed: generate a new key, update the deployment environment, and never reuse the old value.
+- Restrict allowed hosts and CORS origins to the actual deployed domains.
+- The temporary public CORS-debug endpoint has been removed.
 - Keep database credentials and all other secrets out of source control.
-- Remove the temporary `/api/debug-cors/` endpoint.
-- Configure HTTPS and review cookie, CSRF, and JWT settings.
-- Add automated tests for registration, authentication, task ownership, and task CRUD.
-- Back up the production database and verify the restore process.
+- Configure HTTPS and review authentication, CSRF, and JWT settings before using real user data.
 
 ## Development
 
